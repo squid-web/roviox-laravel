@@ -1,0 +1,28 @@
+{
+    "name": "squidweb/roviox-laravel",
+    "description": "Laravel SDK for the Roviox API: transactional email, support tickets and newsletter campaigns.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["roviox", "mail", "transactional", "newsletter", "laravel"],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/http": "^10.0|^11.0|^12.0|^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Roviox\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Roviox\\RovioxServiceProvider"
+            ],
+            "aliases": {
+                "Roviox": "Roviox\\Facades\\Roviox"
+            }
+        }
+    },
+    "minimum-stability": "stable"
+}
