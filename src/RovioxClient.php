@@ -95,6 +95,29 @@ class RovioxClient
     }
 
     /**
+     * Create or update a subscriber and their custom data (e.g. mark a
+     * user as premium, set a country). Custom fields are merged; pass
+     * $list (slug or id) to also subscribe them to a list.
+     *
+     * @param  array<string, scalar>  $customFields
+     */
+    public function upsertSubscriber(
+        string $email,
+        ?string $name = null,
+        ?string $locale = null,
+        array $customFields = [],
+        ?string $list = null,
+    ): array {
+        return $this->post('/v1/subscribers', array_filter([
+            'email' => $email,
+            'name' => $name,
+            'locale' => $locale,
+            'custom_fields' => $customFields ?: null,
+            'list' => $list,
+        ], fn ($value) => $value !== null))['subscriber'] ?? [];
+    }
+
+    /**
      * Create a newsletter campaign. Pass send: true to send (or schedule,
      * when scheduled_at is in the future) immediately.
      *

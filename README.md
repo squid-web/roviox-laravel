@@ -55,6 +55,14 @@ Roviox::sendTemplatedEmail('two_factor_code', 'customer@example.com', [
     'expires_minutes' => 10,
 ], locale: 'nl');
 
+// Subscriber custom data (segments can target these fields)
+Roviox::upsertSubscriber(
+    email: 'user@example.com',
+    name: 'Jan',
+    customFields: ['premium' => true, 'country' => 'NL'],
+    list: 'monthly',            // optional: also subscribe to this list
+);
+
 // Contact form → Roviox support desk (form = slug or public key)
 Roviox::createTicket('contact', [
     'name' => $request->name,
