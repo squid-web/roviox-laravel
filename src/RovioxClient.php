@@ -48,8 +48,8 @@ class RovioxClient
      * the domain's look-and-feel.
      *
      * @param  array<string, mixed>  $data  type variables, e.g. ['action_url' => '…', 'name' => 'Jan']
-     * @param  string|null  $locale  e.g. 'nl' — falls back to the domain default
-     * @param  string|null  $theme  clean | bold | minimal — falls back to the domain setting
+     * @param  string|null  $locale  e.g. 'nl', falls back to the domain default
+     * @param  string|null  $theme  clean | bold | minimal, falls back to the domain setting
      */
     public function sendTemplatedEmail(
         string $type,
