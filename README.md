@@ -11,7 +11,7 @@ composer require squidweb/roviox-laravel
 Set your API key in `.env`. Create one in Roviox under *API keys*; the key is bound to one domain, so it decides what you send for.
 
 ```dotenv
-ROVIOX_KEY=mb_xxxxxxxxxxxxxxxxxxxx
+ROVIOX_KEY=rx_xxxxxxxxxxxxxxxxxxxx
 ```
 
 That is all you need. The package talks to `https://api.roviox.app`, there is
