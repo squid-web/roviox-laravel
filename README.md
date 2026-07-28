@@ -1,17 +1,8 @@
 # Roviox for Laravel
 
-Laravel SDK for the [Roviox](../../README.md) API: send transactional email, push contact-form submissions to the support desk, and create newsletter campaigns from any Laravel application.
+Laravel SDK for the [Roviox](https://roviox.app) API: send transactional email, push contact-form submissions to the support desk, and create newsletter campaigns from any Laravel application.
 
 ## Installation
-
-Until the package is on Packagist, add it as a path or VCS repository:
-
-```jsonc
-// composer.json of your application
-"repositories": [
-    { "type": "path", "url": "../MailSysteem/packages/roviox-laravel" }
-]
-```
 
 ```bash
 composer require squidweb/roviox-laravel
@@ -23,11 +14,9 @@ Set your API key in `.env`. Create one in Roviox under *API keys*; the key is bo
 ROVIOX_KEY=mb_xxxxxxxxxxxxxxxxxxxx
 ```
 
-That is all the hosted service needs. Self-hosting or developing against a local install? Point the package somewhere else:
-
-```dotenv
-ROVIOX_URL=https://api.your-own-host.example
-```
+That is all you need. `ROVIOX_URL` exists so you can point the package at a
+development install of Roviox, it defaults to `https://api.roviox.app` and you
+can leave it alone.
 
 Optionally publish the config: `php artisan vendor:publish --tag=roviox-config`.
 
