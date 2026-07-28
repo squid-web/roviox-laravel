@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.3.0
 
 - **Breaking:** `createCampaign()` takes `list` and `content` before the
   sender, and the sender is now optional: leave `fromName` and `from` out and
