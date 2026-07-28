@@ -17,11 +17,16 @@ Until the package is on Packagist, add it as a path or VCS repository:
 composer require squidweb/roviox-laravel
 ```
 
-Set your credentials in `.env` (create an API key in Roviox under *Settings → API keys*; the key is bound to one domain):
+Set your API key in `.env`. Create one in Roviox under *API keys*; the key is bound to one domain, so it decides what you send for.
 
 ```dotenv
-ROVIOX_URL=https://api.your-roviox-host.example
 ROVIOX_KEY=mb_xxxxxxxxxxxxxxxxxxxx
+```
+
+That is all the hosted service needs. Self-hosting or developing against a local install? Point the package somewhere else:
+
+```dotenv
+ROVIOX_URL=https://api.your-own-host.example
 ```
 
 Optionally publish the config: `php artisan vendor:publish --tag=roviox-config`.

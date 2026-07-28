@@ -3,10 +3,11 @@
 return [
 
     /*
-    | Base URL of your Roviox API host, e.g. https://api.roviox.example
-    | (the dedicated API domain, without a trailing slash).
+    | Base URL of the Roviox API. The default points at the hosted service,
+    | so you normally only set ROVIOX_KEY. Override this when you self-host
+    | or when you develop against a local install.
     */
-    'url' => env('ROVIOX_URL', 'https://api.roviox.test'),
+    'url' => env('ROVIOX_URL', 'https://api.roviox.app'),
 
     /*
     | Domain API key, created in Roviox under Settings → API keys.
