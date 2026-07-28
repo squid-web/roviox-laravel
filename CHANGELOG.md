@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.2.0
+
+- **Breaking:** `ROVIOX_URL` and the `roviox.url` config key are gone. The
+  package always talks to `https://api.roviox.app`, which is the only place
+  Roviox runs. `RovioxClient::__construct()` lost its `$baseUrl` argument;
+  the host now lives in `RovioxClient::BASE_URL`. Nothing to do unless you
+  built the client by hand.
+- Added a test suite (PHPUnit + Testbench) covering every facade method, the
+  request payloads, and the error handling. Run it with `composer test`.
+
 ## v0.1.0
 
 First release.

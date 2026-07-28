@@ -14,9 +14,8 @@ Set your API key in `.env`. Create one in Roviox under *API keys*; the key is bo
 ROVIOX_KEY=mb_xxxxxxxxxxxxxxxxxxxx
 ```
 
-That is all you need. `ROVIOX_URL` exists so you can point the package at a
-development install of Roviox, it defaults to `https://api.roviox.app` and you
-can leave it alone.
+That is all you need. The package talks to `https://api.roviox.app`, there is
+nothing else to point it at.
 
 Optionally publish the config: `php artisan vendor:publish --tag=roviox-config`.
 
@@ -80,3 +79,12 @@ Roviox::sendCampaign($campaign['id']); // send a draft
 ```
 
 Errors throw `Roviox\RovioxException` with `status` and `errors` (validation) properties.
+
+## Tests
+
+```bash
+composer install
+composer test
+```
+
+The suite fakes the HTTP layer, so it never touches the API.

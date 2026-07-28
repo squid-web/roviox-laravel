@@ -12,7 +12,6 @@ class RovioxServiceProvider extends ServiceProvider
 
         $this->app->singleton(RovioxClient::class, function ($app) {
             return new RovioxClient(
-                baseUrl: $app['config']->get('roviox.url'),
                 apiKey: $app['config']->get('roviox.key'),
                 timeout: (int) $app['config']->get('roviox.timeout', 15),
             );

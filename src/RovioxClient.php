@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\Http;
 
 class RovioxClient
 {
+    /** The Roviox API. There is one, so it is not configurable. */
+    public const BASE_URL = 'https://api.roviox.app';
+
     public function __construct(
-        protected string $baseUrl,
         protected ?string $apiKey,
         protected int $timeout = 15,
     ) {}
@@ -186,7 +188,7 @@ class RovioxClient
 
     protected function url(string $path): string
     {
-        return rtrim($this->baseUrl, '/').$path;
+        return self::BASE_URL.$path;
     }
 
     protected function handle(Response $response): array
