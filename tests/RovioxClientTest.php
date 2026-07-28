@@ -114,31 +114,34 @@ class RovioxClientTest extends TestCase
         $campaign = Roviox::createCampaign(
             name: 'Weekly digest',
             subject: 'This week',
-            fromName: 'Acme',
-            fromLocalPart: 'news',
             list: 'monthly',
             content: '<h1>Hello</h1>',
-            send: true,
+            fromName: 'Acme',
+            from: 'news',
+            sendNow: true,
         );
 
         $this->assertSame(12, $campaign['id']);
 
-        Http::assertSent(fn (Request $request) => $request['from_local_part'] === 'news'
-            && $request['send'] === true
+        Http::assertSent(fn (Request $request) => $request['from'] === 'news'
+            && $request['send_now'] === true
             // Not scheduled, so the key should be absent rather than null.
             && ! array_key_exists('scheduled_at', $request->data()));
     }
 
-    public function test_send_is_omitted_when_the_campaign_stays_a_draft(): void
+    public function test_send_now_is_omitted_when_the_campaign_stays_a_draft(): void
     {
         Http::fake(['*' => Http::response(['campaign' => ['id' => 13, 'status' => 'draft']])]);
 
         Roviox::createCampaign(
-            name: 'Draft', subject: 'Later', fromName: 'Acme',
-            fromLocalPart: 'news', list: 'monthly', content: '<p>x</p>',
+            name: 'Draft', subject: 'Later',
+            list: 'monthly', content: '<p>x</p>',
         );
 
-        Http::assertSent(fn (Request $request) => ! array_key_exists('send', $request->data()));
+        Http::assertSent(fn (Request $request) => ! array_key_exists('send_now', $request->data())
+            // No sender given, so none is sent: the domain decides.
+            && ! array_key_exists('from', $request->data())
+            && ! array_key_exists('from_name', $request->data()));
     }
 
     public function test_it_reads_and_sends_a_campaign_by_id(): void

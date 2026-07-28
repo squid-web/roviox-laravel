@@ -11,7 +11,7 @@ use Roviox\RovioxClient;
  * @method static array createTicket(string $form, array $fields)
  * @method static array lists()
  * @method static array upsertSubscriber(string $email, ?string $name = null, ?string $locale = null, array $customFields = [], ?string $list = null)
- * @method static array createCampaign(string $name, string $subject, string $fromName, string $fromLocalPart, string $list, string $content, ?int $templateId = null, ?string $scheduledAt = null, ?string $dynamicContentUrl = null, bool $send = false)
+ * @method static array createCampaign(string $name, string $subject, string $list, string $content, ?string $fromName = null, ?string $from = null, ?int $templateId = null, ?string $scheduledAt = null, ?string $dynamicContentUrl = null, bool $sendNow = false)
  * @method static array campaign(int $id)
  * @method static array sendCampaign(int $id)
  *

@@ -65,14 +65,15 @@ Roviox::createTicket('contact', [
 
 // Newsletter campaign
 $campaign = Roviox::createCampaign(
-    name: 'Weekly digest',
-    subject: 'This week at Acme',
-    fromName: 'Acme',
-    fromLocalPart: 'news',
-    list: 'monthly',                 // list slug or id
+    name: 'Weekly digest',           // internal, only you see this
+    subject: 'This week at Acme',    // what readers see
+    list: 'monthly',                 // slug or id, shown on the list's page
     content: '<h1>Hello {{name}}</h1>',
-    send: true,                      // or pass scheduledAt: '2026-08-01 09:00'
+    sendNow: true,                   // or pass scheduledAt: '2026-08-01 09:00'
 );
+
+// The sender comes from your domain settings. Override it per campaign:
+// fromName: 'Acme', from: 'news'
 
 Roviox::campaign($campaign['id']);     // status + stats
 Roviox::sendCampaign($campaign['id']); // send a draft

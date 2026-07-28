@@ -120,34 +120,37 @@ class RovioxClient
     }
 
     /**
-     * Create a newsletter campaign. Pass send: true to send (or schedule,
-     * when scheduled_at is in the future) immediately.
+     * Create a newsletter campaign. Pass sendNow: true to send (or schedule,
+     * when scheduledAt is in the future) immediately.
      *
-     * @param  string  $list  the subscriber list's slug or id
+     * @param  string  $list  the subscriber list's slug or id, shown on the
+     *                        list's page in Roviox and returned by lists()
+     * @param  string|null  $from  part before the @, e.g. "news"; both sender
+     *                             fields fall back to the domain's setting
      */
     public function createCampaign(
         string $name,
         string $subject,
-        string $fromName,
-        string $fromLocalPart,
         string $list,
         string $content,
+        ?string $fromName = null,
+        ?string $from = null,
         ?int $templateId = null,
         ?string $scheduledAt = null,
         ?string $dynamicContentUrl = null,
-        bool $send = false,
+        bool $sendNow = false,
     ): array {
         return $this->post('/v1/campaigns', array_filter([
             'name' => $name,
             'subject' => $subject,
-            'from_name' => $fromName,
-            'from_local_part' => $fromLocalPart,
             'list' => $list,
             'content' => $content,
+            'from_name' => $fromName,
+            'from' => $from,
             'template_id' => $templateId,
             'scheduled_at' => $scheduledAt,
             'dynamic_content_url' => $dynamicContentUrl,
-            'send' => $send ?: null,
+            'send_now' => $sendNow ?: null,
         ], fn ($value) => $value !== null))['campaign'] ?? [];
     }
 
