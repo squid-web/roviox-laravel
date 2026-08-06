@@ -79,6 +79,23 @@ Roviox::campaign($campaign['id']);     // status + stats
 Roviox::sendCampaign($campaign['id']); // send a draft
 ```
 
+### Inbox
+
+Not wrapped by the facade yet, but the endpoints are there and take the same
+`X-Api-Key` header (a key with the `inbox` scope):
+
+| Method | Path | What |
+|---|---|---|
+| GET | `/v1/mailboxes` | your inbox addresses, including which one is the catch-all |
+| GET | `/v1/messages` | mail you received, newest first (`mailbox`, `direction`, `since_id`, `since`, `include_spam`, `per_page`) |
+| GET | `/v1/messages/{id}` | one message with body, headers and attachments |
+| DELETE | `/v1/messages/{id}` | delete a message for good |
+
+A domain can also call your app when mail arrives (domain settings, tab
+"Receiving mail"). That webhook carries identifiers only, never the mail: it
+hands you a `message_id` to fetch through the API above. Verify the
+`X-Roviox-Signature` header before trusting it; the API docs show how.
+
 Errors throw `Roviox\RovioxException` with `status` and `errors` (validation) properties.
 
 ## Tests
