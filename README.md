@@ -106,3 +106,53 @@ composer test
 ```
 
 The suite fakes the HTTP layer, so it never touches the API.
+
+## Errors
+
+Anything other than a 2xx throws a `Roviox\RovioxException`, carrying the HTTP
+status and the validation errors from the response.
+
+```php
+use Roviox\RovioxException;
+
+try {
+    Roviox::sendEmail(from: 'noreply', to: $user->email, subject: '…', text: '…');
+} catch (RovioxException $e) {
+    $e->getMessage();  // "The to field must be a valid email address."
+    $e->status;        // 422
+    $e->errors;        // ['to' => ['The to field must be a valid email address.']]
+
+    report($e);
+}
+```
+
+What the statuses mean: **401** the key is wrong or revoked, **403** the key is
+missing the scope for that endpoint (a permissions problem you fix in Roviox,
+not in your code), **422** validation, **429** rate limited.
+
+## Queueing
+
+Calls are synchronous HTTP requests. Anything in a web request belongs in a job,
+so a slow API call never becomes a slow page.
+
+```php
+dispatch(fn () => Roviox::sendTemplatedEmail('welcome', $user->email, ['name' => $user->name]));
+```
+
+## Testing
+
+Fake the HTTP layer rather than the facade, so you also assert what was sent.
+
+```php
+use Illuminate\Support\Facades\Http;
+
+Http::fake(['*/v1/emails' => Http::response(['id' => 1, 'status' => 'sent'])]);
+
+// … run the code under test …
+
+Http::assertSent(fn ($request) => $request['to'] === 'jan@example.com');
+```
+
+Leave `ROVIOX_KEY` empty in your test environment and every call throws right
+away, which is a useful way to notice a code path that sends mail when it
+should not.
