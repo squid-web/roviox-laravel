@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.4.0
+
+- Attachments. `sendEmail()` and `sendTemplatedEmail()` take an
+  `attachments:` array. Pass a path and the SDK reads, names and encodes the
+  file for you, or pass `['filename' => …, 'content' => …]` when it only
+  exists in memory. Never a URL: the bytes travel in the request, so Roviox
+  never fetches anything from your side. At most 10 files and 15 MB decoded
+  per email; an unreadable path throws `RovioxException` rather than sending
+  a mail with a missing attachment.
+- `sendInvoice()`, for the new `invoice` email type: the number, the amount
+  and the due date in a small table, your PDF attached, and an optional
+  payment link as the button. The amount is a number in major units and
+  Roviox formats it for the language of the mail, with `currency:` (ISO 4217,
+  default EUR). For the due date pass either `dueDate:` as your own string or
+  `paymentTermDays: 14` and let Roviox count from today; both at once is
+  refused.
+- The README covers errors, queueing and testing, which it did not before.
+
+Nothing here is breaking: the new arguments sit at the end of the existing
+signatures.
+
 ## v0.3.0
 
 - **Breaking:** `createCampaign()` takes `list` and `content` before the

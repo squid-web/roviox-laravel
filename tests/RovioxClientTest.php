@@ -190,4 +190,106 @@ class RovioxClientTest extends TestCase
 
         Http::assertSent(fn (Request $request) => str_starts_with($request->url(), 'https://api.roviox.app/'));
     }
+
+    public function test_it_encodes_an_attachment_from_a_path(): void
+    {
+        Http::fake(['*' => Http::response(['id' => 8, 'status' => 'sent'])]);
+
+        $path = tempnam(sys_get_temp_dir(), 'roviox').'.txt';
+        file_put_contents($path, 'hallo wereld');
+
+        Roviox::sendEmail(
+            from: 'noreply',
+            to: 'jan@example.com',
+            subject: 'Met bijlage',
+            text: 'Zie bijlage.',
+            attachments: [$path],
+        );
+
+        Http::assertSent(function (Request $request) use ($path) {
+            $file = $request['attachments'][0];
+
+            // JSON has no bytes, so the SDK reads and encodes the file itself.
+            return $file['filename'] === basename($path)
+                && base64_decode($file['content']) === 'hallo wereld';
+        });
+
+        unlink($path);
+    }
+
+    public function test_it_takes_attachment_contents_without_a_path(): void
+    {
+        Http::fake(['*' => Http::response(['id' => 9, 'status' => 'sent'])]);
+
+        Roviox::sendEmail(
+            from: 'noreply', to: 'jan@example.com', subject: 'Hi', text: 'Hallo',
+            attachments: [['filename' => 'in-memory.pdf', 'content' => '%PDF-1.4', 'content_type' => 'application/pdf']],
+        );
+
+        Http::assertSent(function (Request $request) {
+            $file = $request['attachments'][0];
+
+            return $file['filename'] === 'in-memory.pdf'
+                && $file['content_type'] === 'application/pdf'
+                && base64_decode($file['content']) === '%PDF-1.4';
+        });
+    }
+
+    public function test_an_unreadable_attachment_throws_instead_of_sending_nothing(): void
+    {
+        Http::fake(['*' => Http::response(['id' => 1])]);
+
+        $this->expectException(RovioxException::class);
+
+        Roviox::sendEmail(
+            from: 'noreply', to: 'jan@example.com', subject: 'Hi', text: 'Hallo',
+            attachments: ['/does/not/exist.pdf'],
+        );
+    }
+
+    public function test_it_sends_an_invoice_with_its_pdf(): void
+    {
+        Http::fake(['*' => Http::response(['id' => 10, 'status' => 'sent'])]);
+
+        $path = tempnam(sys_get_temp_dir(), 'invoice').'.pdf';
+        file_put_contents($path, '%PDF-1.4 factuur');
+
+        Roviox::sendInvoice(
+            to: 'klant@example.com',
+            invoiceNumber: '2026-014',
+            amount: 249.00,
+            pdf: $path,
+            paymentUrl: 'https://pay.example.com/2026-014',
+            locale: 'nl',
+            paymentTermDays: 14,
+        );
+
+        Http::assertSent(function (Request $request) {
+            return $request->url() === RovioxClient::BASE_URL.'/v1/emails/template'
+                && $request['type'] === 'invoice'
+                && $request['locale'] === 'nl'
+                // A number and a currency, not a written out amount: Roviox
+                // formats it for the language of the mail.
+                && $request['data']['amount'] === 249.0
+                && $request['data']['currency'] === 'EUR'
+                && $request['data']['payment_term_days'] === 14
+                && $request['data']['invoice_number'] === '2026-014'
+                && ! array_key_exists('due_date', $request['data'])
+                && base64_decode($request['attachments'][0]['content']) === '%PDF-1.4 factuur';
+        });
+
+        unlink($path);
+    }
+
+    public function test_an_invoice_without_a_pdf_sends_no_attachments_block(): void
+    {
+        Http::fake(['*' => Http::response(['id' => 11, 'status' => 'sent'])]);
+
+        Roviox::sendInvoice(to: 'k@example.com', invoiceNumber: 'X', amount: 40, currency: 'USD');
+
+        Http::assertSent(function (Request $request) {
+            return $request['data']['currency'] === 'USD'
+                && ! array_key_exists('attachments', $request->data());
+        });
+    }
 }

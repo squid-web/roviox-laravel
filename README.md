@@ -88,7 +88,8 @@ Not wrapped by the facade yet, but the endpoints are there and take the same
 |---|---|---|
 | GET | `/v1/mailboxes` | your inbox addresses, including which one is the catch-all |
 | GET | `/v1/messages` | mail you received, newest first (`mailbox`, `direction`, `since_id`, `since`, `include_spam`, `per_page`) |
-| GET | `/v1/messages/{id}` | one message with body, headers and attachments |
+| GET | `/v1/messages/{id}` | one message with body, headers and attachment list |
+| GET | `/v1/messages/{id}/attachments/{index}` | download one attachment; the message payload hands you this URL as `download_url` |
 | DELETE | `/v1/messages/{id}` | delete a message for good |
 
 A domain can also call your app when mail arrives (domain settings, tab
@@ -106,6 +107,56 @@ composer test
 ```
 
 The suite fakes the HTTP layer, so it never touches the API.
+
+## Attachments
+
+JSON has no bytes, so files go out base64 encoded. The SDK does that for you:
+pass a path, or the contents if the file only exists in memory.
+
+```php
+Roviox::sendEmail(
+    from: 'facturen',
+    to: 'klant@example.com',
+    subject: 'Je factuur',
+    text: 'Zie bijlage.',
+    attachments: [
+        storage_path('app/invoices/2026-014.pdf'),                    // a path
+        ['filename' => 'bon.pdf', 'content' => $pdfBytes],            // or the bytes
+    ],
+);
+```
+
+At most 10 files and 15 MB decoded per email. Roviox stores the filename, size
+and type with the send log, never the file itself.
+
+## Invoices
+
+`sendInvoice()` is the invoice template with its PDF: the number, the amount
+and the due date land in a small table, and a payment link becomes the button.
+
+```php
+Roviox::sendInvoice(
+    to: 'klant@example.com',
+    invoiceNumber: '2026-014',
+    amount: 249.00,
+    pdf: storage_path('app/invoices/2026-014.pdf'),
+    paymentTermDays: 14,
+    paymentUrl: $mollie->getCheckoutUrl(),
+    locale: 'nl',
+    extra: ['name' => $customer->name],
+);
+```
+
+The amount is a number in major units and Roviox formats it for the language
+of the mail: `€ 249,00` in Dutch, `€249.00` in English. Pass `currency:` for
+anything other than EUR.
+
+For the due date you either pass `dueDate:` as your own string, or
+`paymentTermDays: 14` and Roviox counts the date from today and writes it in
+the language of the mail. Passing both is refused, because that is a
+contradiction rather than a default. Everything except the number and the amount is
+optional, and the copy follows: no PDF means the mail no longer says one is
+attached, no payment link means no button.
 
 ## Errors
 
