@@ -94,7 +94,10 @@ Not wrapped by the facade yet, but the endpoints are there and take the same
 
 A domain can also call your app when mail arrives (domain settings, tab
 "Receiving mail"). That webhook carries identifiers only, never the mail: it
-hands you a `message_id` to fetch through the API above. Verify the
+hands you a `message_id` to fetch through the API above. Note the difference
+between `mailbox` (where it was filed) and `recipient` (what the sender wrote
+to): on a catch-all mailbox those differ, and `recipient` is the one to route
+on. Verify the
 `X-Roviox-Signature` header before trusting it; the API docs show how.
 
 Errors throw `Roviox\RovioxException` with `status` and `errors` (validation) properties.
