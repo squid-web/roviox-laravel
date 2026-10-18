@@ -19,7 +19,14 @@ class RovioxClient
     /**
      * Send a transactional email.
      *
-     * @param  string  $from  local part of the sender address (e.g. "noreply")
+     * The sender is two arguments: $from is only the part before the @ and
+     * $fromName the name next to it. The domain is always the one your API
+     * key belongs to, so from: 'orders' with fromName: 'Acme Webshop'
+     * arrives as "Acme Webshop <orders@yourdomain.com>".
+     *
+     * @param  string  $from  only the part before the @, e.g. "orders"; never a full address
+     * @param  string|null  $fromName  the name shown next to the address, defaults to your brand name
+     * @param  string|null  $replyTo  a full address: where replies go, defaults to the From address
      * @param  array<int, string|array<string, string>>  $attachments  paths, or ['filename' => …, 'content' => …]
      * @return array{id: int, status: string, provider_message_id: ?string}
      */
@@ -55,6 +62,8 @@ class RovioxClient
      * @param  array<string, mixed>  $data  type variables, e.g. ['action_url' => '…', 'name' => 'Jan']
      * @param  string|null  $locale  e.g. 'nl', falls back to the domain default
      * @param  string|null  $theme  clean | bold | minimal, falls back to the domain setting
+     * @param  string|null  $from  only the part before the @, defaults to "noreply"
+     * @param  string|null  $fromName  the name shown next to the address, defaults to your brand name
      */
     public function sendTemplatedEmail(
         string $type,
@@ -134,6 +143,9 @@ class RovioxClient
      *                                              the SDK reads and encodes the file itself.
      * @param  int|null  $paymentTermDays  instead of $dueDate: Roviox counts the date from today
      * @param  array<string, mixed>  $extra  name, note, subject, …
+     * @param  string|null  $from  only the part before the @, e.g. "billing"; defaults to "noreply",
+     *                             which is a poor address for something people reply to with questions
+     * @param  string|null  $fromName  the name shown next to the address, defaults to your brand name
      */
     public function sendInvoice(
         string $to,
@@ -146,6 +158,8 @@ class RovioxClient
         string $currency = 'EUR',
         ?int $paymentTermDays = null,
         array $extra = [],
+        ?string $from = null,
+        ?string $fromName = null,
     ): array {
         return $this->sendTemplatedEmail(
             type: 'invoice',
@@ -160,6 +174,8 @@ class RovioxClient
                 'payment_url' => $paymentUrl,
             ], fn ($value) => $value !== null),
             locale: $locale,
+            from: $from,
+            fromName: $fromName,
             attachments: $pdf === null ? [] : [$pdf],
         );
     }

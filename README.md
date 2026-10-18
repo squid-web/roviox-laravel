@@ -21,26 +21,51 @@ Optionally publish the config: `php artisan vendor:publish --tag=roviox-config`.
 
 ## Usage
 
+### Who the email comes from
+
+A From line is a name and an address, so the sender is two arguments:
+
+| Argument | What goes in | Example |
+|---|---|---|
+| `from` | only the part **before** the @ | `'orders'` |
+| `fromName` | the name shown next to the address (optional, defaults to your brand name) | `'Acme Webshop'` |
+
+The domain is not an argument: it is always the domain your API key belongs to,
+which is also the domain whose SPF and DKIM records make the mail trusted. So
+`from: 'orders'` with `fromName: 'Acme Webshop'` arrives as:
+
+```
+Acme Webshop <orders@yourdomain.com>
+```
+
+A full address or a name in `from` is refused with a 422 that says so.
+`replyTo` is the odd one out: that one is a full address, because replies may
+go anywhere.
+
 ```php
 use Roviox\Facades\Roviox;
 
 // Transactional email
 Roviox::sendEmail(
-    from: 'noreply',
+    from: 'orders',              // only the part before the @
+    fromName: 'Acme Webshop',    // optional: the name next to it
     to: 'customer@example.com',
     subject: 'Your order has shipped',
     html: '<p>Track it here…</p>',
     metadata: ['order_id' => 1234],
 );
+// Arrives as: Acme Webshop <orders@yourdomain.com>
 
 // Templated transactional email in Roviox's look-and-feel.
 // Types: confirm_signup, two_factor_code, password_reset, magic_login,
-// welcome, email_change, notification. Locale: en/nl. Theme: clean/bold/minimal.
+// welcome, email_change, notification, invoice. Locale: en/nl. Theme: clean/bold/minimal.
+// The sender is optional here: without it, Your Brand <noreply@yourdomain.com>.
 Roviox::sendTemplatedEmail(
     type: 'confirm_signup',
     to: 'customer@example.com',
     data: ['action_url' => 'https://app.example.com/confirm/abc123', 'name' => 'Jan'],
     locale: 'nl',
+    from: 'welcome',             // optional: welcome@yourdomain.com
 );
 
 Roviox::sendTemplatedEmail('two_factor_code', 'customer@example.com', [
@@ -72,8 +97,9 @@ $campaign = Roviox::createCampaign(
     sendNow: true,                   // or pass scheduledAt: '2026-08-01 09:00'
 );
 
-// The sender comes from your domain settings. Override it per campaign:
-// fromName: 'Acme', from: 'news'
+// The sender comes from your domain's newsletter settings. Override it per
+// campaign with the same two arguments: fromName: 'Acme', from: 'news'
+// arrives as Acme <news@yourdomain.com>.
 
 Roviox::campaign($campaign['id']);     // status + stats
 Roviox::sendCampaign($campaign['id']); // send a draft
@@ -118,7 +144,8 @@ pass a path, or the contents if the file only exists in memory.
 
 ```php
 Roviox::sendEmail(
-    from: 'facturen',
+    from: 'facturen',            // facturen@yourdomain.com
+    fromName: 'Acme Facturatie',
     to: 'klant@example.com',
     subject: 'Je factuur',
     text: 'Zie bijlage.',
@@ -147,6 +174,8 @@ Roviox::sendInvoice(
     paymentUrl: $mollie->getCheckoutUrl(),
     locale: 'nl',
     extra: ['name' => $customer->name],
+    from: 'facturen',            // optional, but an invoice gets questions:
+    fromName: 'Acme Facturatie', // send it from an address somebody reads
 );
 ```
 

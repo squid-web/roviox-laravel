@@ -281,6 +281,28 @@ class RovioxClientTest extends TestCase
         unlink($path);
     }
 
+    public function test_an_invoice_can_come_from_an_address_somebody_reads(): void
+    {
+        Http::fake(['*' => Http::response(['id' => 12, 'status' => 'sent'])]);
+
+        Roviox::sendInvoice(to: 'k@example.com', invoiceNumber: 'X', amount: 40,
+            from: 'billing', fromName: 'Acme Billing');
+
+        Http::assertSent(fn (Request $request) => $request['from'] === 'billing'
+            && $request['from_name'] === 'Acme Billing');
+    }
+
+    public function test_an_invoice_without_a_sender_leaves_it_to_the_api(): void
+    {
+        Http::fake(['*' => Http::response(['id' => 13, 'status' => 'sent'])]);
+
+        Roviox::sendInvoice(to: 'k@example.com', invoiceNumber: 'X', amount: 40);
+
+        // No empty fields: the API's own default (noreply, brand name) applies.
+        Http::assertSent(fn (Request $request) => ! array_key_exists('from', $request->data())
+            && ! array_key_exists('from_name', $request->data()));
+    }
+
     public function test_an_invoice_without_a_pdf_sends_no_attachments_block(): void
     {
         Http::fake(['*' => Http::response(['id' => 11, 'status' => 'sent'])]);
