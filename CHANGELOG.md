@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.5.0
+
+- `sendInvoice()` takes `from:` and `fromName:`. Until now an invoice sent
+  through the SDK always came from `noreply@`, which is a poor address for
+  something people reply to with questions. `from: 'billing'` with
+  `fromName: 'Acme Billing'` arrives as `Acme Billing <billing@yourdomain.com>`.
+  Leave them out and the API's defaults apply, as before.
+- The sender is explained where you type it. The docblocks of `sendEmail()`,
+  `sendTemplatedEmail()` and `sendInvoice()` say that `from` is only the part
+  before the @ (the domain always comes from your API key) and `fromName` the
+  name next to it, and the README opens its usage section with the same.
+
+Nothing here is breaking: the new arguments sit at the end of the existing
+signature.
+
 ## v0.4.0
 
 - Attachments. `sendEmail()` and `sendTemplatedEmail()` take an
